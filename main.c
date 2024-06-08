@@ -47,7 +47,7 @@ void concat_array(char* dest, char* src, int start, int chars_amount) {
 int main(int argc, char** argv) {
 	int optc;
 	bool print_stdout = false;
-	char buffer_stdin[BUFF_BYTES];
+	char buffer[BUFF_BYTES];
 	char* message = (char*)calloc(BUFF_BYTES, sizeof(char));
 	int lenght = 0;
 	int max_lenght = BUFF_BYTES;
@@ -84,15 +84,37 @@ int main(int argc, char** argv) {
 	char* line;
 	char* temporal_realloc;
 	int line_lenght = 0;
-	while ((line = fgets(buffer_stdin, BUFF_BYTES, stdin))) {
-		printf("Lenght of line %zu\nAnd this was read: %s\n", strlen(line), line);
+	while ((line = fgets(buffer, BUFF_BYTES, stdin))) {
 		line_lenght = strlen(line);
 
 		if (line_lenght + lenght >= max_lenght) {
 			max_lenght *= 2;
 			temporal_realloc = realloc(message, max_lenght);
 			if (temporal_realloc == NULL) {
-				fputs("Reallocation of message not working\n", stderr);
+				fputs("Reallocation of message not working when reading stdin\n", stderr);
+				// Here we could send a partial message
+				free(message);
+				exit(EXIT_FAILURE);
+			} else {
+				free(message);
+				message = temporal_realloc;
+			}
+
+		}
+
+		concat_array(message, line, lenght, line_lenght);
+		lenght += line_lenght;
+	}
+
+	while ((line = fgets(buffer, BUFF_BYTES, stderr))) {
+		printf("Inside stderr\n");
+		line_lenght = strlen(line);
+
+		if (line_lenght + lenght >= max_lenght) {
+			max_lenght *= 2;
+			temporal_realloc = realloc(message, max_lenght);
+			if (temporal_realloc == NULL) {
+				fputs("Reallocation of message not working when reading stderr\n", stderr);
 				// Here we could send a partial message
 				free(message);
 				exit(EXIT_FAILURE);
