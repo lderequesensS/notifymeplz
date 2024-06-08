@@ -5,9 +5,12 @@ Really simple code for sending me notifications through Telegram.
 Is this safe?
 I don't know
 
+# Dependencies
+- libcurl-devel
+
 ## Usage
 ```
-TELEGRAM_BOT_TOKEN=<token> <command> | notifymeplz [OPTION]
+<command> | TELEGRAM_BOT_TOKEN=<token> TELEGRAM_CHAT_ID=<id> notifymeplz [OPTION]
 ```
 Or having the token in your environment
 
