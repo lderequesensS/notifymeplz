@@ -45,13 +45,12 @@ int concat_array(char* dest, char* src, int start, int chars_amount) {
 	int position = 0;
 	int special_chars = 0;
 	for (int i = 0; i < chars_amount; ++i) {
-		position = start + i;
+		position = start + i + special_chars * 2;
 		switch (src[i]){
 			case '\n':
 			dest[position] = '%';
 			dest[position + 1] = '0';
 			dest[position + 2] = 'A';
-			i = i + 2;
 			++special_chars;
 			break;
 
@@ -59,7 +58,6 @@ int concat_array(char* dest, char* src, int start, int chars_amount) {
 			dest[position] = '%';
 			dest[position + 1] = '2';
 			dest[position + 2] = '0';
-			i = i + 2;
 			++special_chars;
 			break;
 
@@ -151,7 +149,6 @@ int main(int argc, char** argv) {
 				clear(curl, message);
 				exit(EXIT_FAILURE);
 			} else {
-				free(message);
 				message = temporal_realloc;
 			}
 
@@ -179,7 +176,6 @@ int main(int argc, char** argv) {
 				clear(curl, message);
 				exit(EXIT_FAILURE);
 			} else {
-				free(message);
 				message = temporal_realloc;
 			}
 		}
@@ -187,17 +183,19 @@ int main(int argc, char** argv) {
 		lenght += line_lenght + 2 * concat_array(message, line, lenght, line_lenght);
 	}
 
-	url = (char*)malloc(sizeof(char) * 90 + lenght); // 90 chars is a little bit more for the base url
-
-	sprintf(url, "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s", token, chat_id, message);
+	// 95 until first '=' (with token) + chat_id of 10 numebers + '&text=' => 95 + 10 + 6 + \0 => 112
+	// Counting this on code will be better but meh
+	url = (char*)malloc(sizeof(char) * (112 + lenght));
+	snprintf(url, 112 + lenght, "https://api.telegram.org/bot%s/sendMessage?chat_id=%s&text=%s", token, chat_id, message);
+	
 	if (print_stdout) {
 		printf("[TEST] Full link: %s\n", url);
+		printf("[TEST] lenght of url: %zu\n", strlen(url));
 	} else {
 		curl_easy_setopt(curl, CURLOPT_URL, url);
-		if (curl_easy_perform(curl) != 0) {
+		if (curl_easy_perform(curl) != CURLE_OK) {
 			fputs("Failing on sending the message\n", stderr);
 			clear(curl,message);
-			free(url);
 			return EXIT_FAILURE;
 		}
 	}
