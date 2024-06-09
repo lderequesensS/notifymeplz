@@ -8,4 +8,4 @@ debug: main.c
 	gcc -Wall -o notifymeplz main.c -g -lcurl
 
 clean:
-	rm main.o main
+	rm main.o notifymeplz

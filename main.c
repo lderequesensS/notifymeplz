@@ -183,6 +183,11 @@ int main(int argc, char** argv) {
 		lenght += line_lenght + 2 * concat_array(message, line, lenght, line_lenght);
 	}
 
+	if (lenght == 0) {
+		// No issue with the previous program
+		strcpy(message, "Finished%20without%20issues");
+		lenght = 27;
+	}
 	// 95 until first '=' (with token) + chat_id of 10 numebers + '&text=' => 95 + 10 + 6 + \0 => 112
 	// Counting this on code will be better but meh
 	url = (char*)malloc(sizeof(char) * (112 + lenght));
